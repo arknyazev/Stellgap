@@ -81,12 +81,24 @@ C-----------------------------------------------
       logical lasym, viz, test_jacob, test_upr_lowr,
      1  make_stellgap_data,make_full_torus,surf_compute
 C-----------------------------------------------
-      tb = char(9); itheta = 80; izeta = 80; viz = .true.
+      print *, 'This is modified metric_element_create.f'
+      print *, 'Consider using the original form GIT'
+      if (.true.) then 
+       open(unit=20,file="fourier.dat",status="old")
+       read(20,*) nfp, itheta, izeta
+       print *, 'nfp, itheta, izeta = ', nfp, itheta, izeta
+       close(20)
+      else
+       itheta = 110; izeta = 110; !Original approach was to declare this variables here
+      endif
+      tb = char(9);
+      viz = .false. !appears unused by both STELLGAP & AE3D (AK)
       viz_flux = 0.5   !selects surface for AVS data - sync with metric_element_create.f
-      test_jacob = .false.; test_upr_lowr = .false.
+      test_jacob = .false.
+      test_upr_lowr = .false.
       make_stellgap_data = .true.
-      make_full_torus = .true.
-      surf_compute = .true.
+      make_full_torus = .false. !appears unused by both STELLGAP & AE3D (AK)
+      surf_compute = .false. !appears unused by both STELLGAP & AE3D (AK)
       numargs = iargc()
       call getarg(1,arg1)
       if( numargs.ne.1 )then
@@ -113,7 +125,8 @@ c      write(*,*) warg1
 c      call read_wout_file(warg1,ierr)
       call read_boozer_file(warg1,ierr)
        if (istat.ne.0) stop 22
-
+       print *, 'nfp =', nfp
+       print *, 'nfp_b =', nfp_b
        nfp = nfp_b
        nsd = ns_b
        aspect = aspect_b
@@ -300,6 +313,7 @@ c      ohs2 = 2.0_dp*dble(nsd-1)                       ! ds to differentiate on 
       if(make_stellgap_data) then
        write(20,21) ks,iotac,phipc,jtorc,jpolc
   21   format(1x,i3,4(2x,e15.7))
+       write(*,*) 'ks = ', ks
       endif
 !=============
 !   BEGIN FOURIER INVERSION
@@ -516,9 +530,10 @@ c
 c  Write out coefficients and B_rho that will be used subsequently
 c  in AE3D to form J_prl/B:
 c
-       do ks = 2,nsd-1
-        write(15,48) jprl_coef0(ks),jprl_coef1(ks),
-     1      jprl_coef2(ks), prespf(ks)
+      print *, 'Jprl/B coefs set to zero in the edited versionto remove kinks'     
+      do ks = 2,nsd-1
+        write(15,48) jprl_coef0(ks)*0.0,jprl_coef1(ks)*0.0,
+     1      jprl_coef2(ks)*0.0, prespf(ks)*0.0
        end do
 c
 c
