@@ -530,7 +530,7 @@ c
 c  Write out coefficients and B_rho that will be used subsequently
 c  in AE3D to form J_prl/B:
 c
-      print *, 'Jprl/B coefs set to zero in the edited versionto remove kinks'     
+      print *, 'Jprl/B coefs set to zero in the edited ver'
       do ks = 2,nsd-1
         write(15,48) jprl_coef0(ks)*0.0,jprl_coef1(ks)*0.0,
      1      jprl_coef2(ks)*0.0, prespf(ks)*0.0
