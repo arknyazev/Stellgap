@@ -1,0 +1,18 @@
+#!/bin/bash
+# Stellgap build script for Perlmutter
+
+# Set up environment (use your STELLOPT build)
+export LIBSTELL=$STELLOPT_HOME/LIBSTELL/Release
+export LIBSTELLA=$STELLOPT_HOME/LIBSTELL/Release/libstell.a
+export NETCDFDIR=/opt/cray/pe/netcdf-hdf5parallel/4.9.0.9/gnu/12.3
+export FC=ftn
+
+# Load required modules
+module load cray-hdf5-parallel/1.12.2.9
+module load cray-netcdf-hdf5parallel/4.9.0.9
+
+# Compile
+$FC -cpp -O2 -I$LIBSTELL -I$NETCDFDIR/include -I. -c metric_element_create_ver8.46.f
+
+# Link with both libraries
+$FC -O2 -o ,xmetric_ver8.46 metric_element_create_ver8.46.o $LIBSTELLA -lnetcdff -L$NETCDFDIR/lib -lhdf5_hl -lhdf5_fortran -lhdf5

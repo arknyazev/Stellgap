@@ -1,0 +1,24 @@
+#!/bin/bash
+# Stellgap build script for Perlmutter
+
+# Load required modules
+module load cray-hdf5-parallel/1.12.2.9
+module load cray-netcdf-hdf5parallel/4.9.0.9
+
+# Perlmutter doesn't have MKL, use Cray LibSci instead
+LIBSTELL="${STELLOPT_HOME}/LIBSTELL/Release"
+LIBSTELLA="${STELLOPT_HOME}/LIBSTELL/Release/libstell.a"
+NETCDFDIR=/opt/cray/pe/netcdf-hdf5parallel/4.9.0.9/gnu/12.3
+FFLAGS="-fallow-argument-mismatch -std=legacy -v"
+FC=ftn  # Cray wrapper instead of mpifort
+OPT=""  # Define OPT variable
+
+# Build steps
+cp stellgap_ver5.f temp.f
+$FC -cpp $FFLAGS -DPARALLEL -I$LIBSTELL -c temp.f
+mv temp.o stellgap.o
+$FC $FFLAGS -c $OPT Fourier_lib_convolve.f -I$LIBSTELL
+$FC $FFLAGS -c $OPT fitpack.f
+
+# Link without MKL (use Cray LibSci for BLAS/LAPACK)
+$FC $FFLAGS -o ,xstgap -I. -I$LIBSTELL $LIBSTELLA stellgap.o Fourier_lib_convolve.o fitpack.o -lnetcdff -L$NETCDFDIR/lib -lhdf5_hl -lhdf5_fortran -lhdf5
